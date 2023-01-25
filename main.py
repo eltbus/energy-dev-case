@@ -16,14 +16,13 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Session, declarative_base, relationship
 from sqlalchemy.engine import RowMapping
-from sqlalchemy.pool import StaticPool
 
 Base = declarative_base()
 
 username = os.environ.get("POSTGRES_USER")
 password = os.environ.get("POSTGRES_PASSWORD")
 dbname = os.environ.get("POSTGRES_DB")
-host = os.environ.get("POSTGRES_HOST", "127.0.0.1")
+host = os.environ.get("POSTGRES_HOST")
 port = os.environ.get("POSTGRES_PORT", 5432)
 DB_URL = f"postgresql+psycopg2://{username}:{password}@{host}:{port}/{dbname}"
 
@@ -48,18 +47,55 @@ class EnergyReadingRow(Base):
     park = relationship("ParkRow", back_populates="energy_readings")
 
 
+def bar(engine):
+    with Session(engine, future=True) as session:
+        stmt = select(ParkRow.name)
+        rows: Sequence[RowMapping] = session.execute(stmt).mappings().all()
+        return rows
+
+
+def foo(engine, park_id):
+    with Session(engine, future=True) as session:
+        stmt = (
+            select(ParkRow.name, EnergyReadingRow.value, EnergyReadingRow.timestamp)
+            .join(EnergyReadingRow)
+            .where(ParkRow.id == park_id)
+        )
+        rows: Sequence[RowMapping] = session.execute(stmt).mappings().all()
+        return reduce(pack, rows, {})
+
+
+def eggs(engine):
+    with Session(engine, future=True) as session:
+        stmt = (
+            select(
+                ParkRow.name,
+                F.min(EnergyReadingRow.value).label("min"),
+                F.max(EnergyReadingRow.value).label("max"),
+                F.sum(EnergyReadingRow.value).label("sum"),
+                F.count(EnergyReadingRow.value).label("count"),
+            )
+            .join(EnergyReadingRow)
+            .group_by(ParkRow.name)
+        )
+        rows: Sequence[RowMapping] = session.execute(stmt).mappings().all()
+        return rows
+
+
+# engine = create_engine("sqlite://", future=True, poolclass=StaticPool, connect_args={"check_same_thread": False})
 engine = create_engine(DB_URL, future=True)
 
 Base.metadata.create_all(engine)
 
+
 with Session(engine, future=True) as session:
     spongebob = ParkRow(
         name="spongebob",
-        EnergyReadingRow=[EnergyReadingRow(value=123, timestamp=datetime.now())],
+        energy_readings=[EnergyReadingRow(value=123, timestamp=datetime.now())],
     )
     sandy = ParkRow(
         name="sandy",
-        EnergyReadingRow=[
+        energy_readings=[
             EnergyReadingRow(value=456, timestamp=datetime.now()),
             EnergyReadingRow(value=789, timestamp=datetime.now()),
         ],
@@ -110,41 +146,6 @@ def pack(d: Dict, i):
     return d
 
 
-def bar(engine):
-    with Session(engine, future=True) as session:
-        stmt = select(ParkRow.name)
-        rows: Sequence[RowMapping] = session.execute(stmt).mappings().all()
-        return rows
-
-
-def foo(engine, park_id):
-    with Session(engine, future=True) as session:
-        stmt = (
-            select(ParkRow.name, EnergyReadingRow.value, EnergyReadingRow.timestamp)
-            .join(EnergyReadingRow)
-            .where(ParkRow.id == park_id)
-        )
-        rows: Sequence[RowMapping] = session.execute(stmt).mappings().all()
-        return reduce(pack, rows, {})
-
-
-def eggs(engine):
-    with Session(engine, future=True) as session:
-        stmt = (
-            select(
-                ParkRow.name,
-                F.min(EnergyReadingRow.value).label("min"),
-                F.max(EnergyReadingRow.value).label("max"),
-                F.sum(EnergyReadingRow.value).label("sum"),
-                F.count(EnergyReadingRow.value).label("count"),
-            )
-            .join(EnergyReadingRow)
-            .group_by(ParkRow.name)
-        )
-        rows: Sequence[RowMapping] = session.execute(stmt).mappings().all()
-        return rows
-
-
 @app.get("/")
 def read_root():
     return RedirectResponse("docs")
@@ -159,7 +160,6 @@ def read_parks():
 def read_park(park_id: int):
     return foo(engine, park_id)
 
-
-@app.get("stats")
+@app.get("/stats")
 def read_stats():
     return eggs(engine)
