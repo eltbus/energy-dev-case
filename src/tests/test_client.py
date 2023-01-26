@@ -1,13 +1,23 @@
-def test_frontend_is_reachable(client):
+def test_frontend_is_responsive(client):
     response = client.get("/")
     assert response.status_code == 200
 
 
-def test_parks_returns_as_expected(client):
+def test_parks_is_responsive(client):
     response = client.get("/parks")
     assert response.status_code == 200
 
 
-def test_parks_with_energy_readings_returns_as_expected(client):
-    response = client.get("/parks_with_energy_readings")
+def test_parks_energy_readings_is_responsive(client):
+    response = client.get("/parks/energy_readings")
+    assert response.status_code == 200
+
+
+def test_parks_stats_is_responsive(client):
+    response = client.get("/stats/parks")
+    assert response.status_code == 200
+
+
+def test_energy_type_stats_is_responsive(client):
+    response = client.get("/stats/energy_types")
     assert response.status_code == 200

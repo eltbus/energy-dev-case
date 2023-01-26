@@ -13,7 +13,9 @@ def test_selectParks_returns_expected(session):
     timezones = [Timezone.amsterdam, Timezone.bucharest]
     energy_types = [EnergyType.wind, EnergyType.solar]
     park_names = [ParkName.netterden, ParkName.stadskanaal]
-    rows = selectParksWithEnergyReadings(session, park_names, timezones, energy_types, offset=0, limit=10)
+    rows = selectParksWithEnergyReadings(
+        session, park_names=park_names, timezones=timezones, energy_types=energy_types, offset=0, limit=10
+    )
     result = reduce(pack, rows, {})  # type:ignore
     for i in result:
         print(i)
