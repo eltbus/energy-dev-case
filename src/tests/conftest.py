@@ -8,12 +8,12 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from testcontainers.postgres import PostgresContainer
 
-from main import startApi
+from main import start_api
 from main.constraints import EnergyType, ParkName, Timezone
-from main.db import getSession
+from main.db import get_session
 from main.db.models import Base, EnergyReadingRow, ParkRow
 
-api = startApi()
+api = start_api()
 client = TestClient(api)
 
 
@@ -66,8 +66,8 @@ def session(data: List[ParkRow]):
 
 @pytest.fixture(name="client")
 def client_fixture(session: Session):
-    api = startApi()
-    api.dependency_overrides[getSession] = lambda: session
+    api = start_api()
+    api.dependency_overrides[get_session] = lambda: session
     client = TestClient(api)
     yield client
     api.dependency_overrides.clear()

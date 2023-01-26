@@ -12,7 +12,7 @@ from main.constraints import EnergyType, ParkName, Timezone
 from main.db.models import EnergyReadingRow, ParkRow
 
 
-def addParkAndEnergyReadingsWhereCondition(
+def add_park_and_energy_readings_where_condition(
     stmt: Select,
     park_names: List[ParkName] = [],
     timezones: List[Timezone] = [],
@@ -38,7 +38,7 @@ def addParkAndEnergyReadingsWhereCondition(
     return stmt
 
 
-def selectParks(
+def select_parks(
     session: Session, timezones: List[Timezone], energy_types: List[EnergyType], offset: int, limit: int
 ) -> Sequence[RowMapping]:
     stmt = select(ParkRow.name, ParkRow.timezone, ParkRow.energy_type).offset(offset).limit(limit)
@@ -49,7 +49,7 @@ def selectParks(
     return session.execute(stmt).mappings().all()
 
 
-def selectParksWithEnergyReadings(
+def select_parks_with_energy_readings(
     session: Session,
     offset: int,
     limit: int,
@@ -67,7 +67,7 @@ def selectParksWithEnergyReadings(
         .limit(limit)
         .join(EnergyReadingRow)
     )
-    stmt = addParkAndEnergyReadingsWhereCondition(
+    stmt = add_park_and_energy_readings_where_condition(
         stmt=stmt,
         park_names=park_names,
         timezones=timezones,
@@ -78,7 +78,7 @@ def selectParksWithEnergyReadings(
     return session.execute(stmt).mappings().all()
 
 
-def selectStatsByParkAndDate(
+def select_stats_by_park_and_date(
     session: Session,
     offset: int,
     limit: int,
@@ -101,7 +101,7 @@ def selectStatsByParkAndDate(
         .limit(limit)
         .join(EnergyReadingRow)
     )
-    stmt = addParkAndEnergyReadingsWhereCondition(
+    stmt = add_park_and_energy_readings_where_condition(
         stmt=stmt,
         park_names=park_names,
         timezones=timezones,
@@ -114,7 +114,7 @@ def selectStatsByParkAndDate(
     return session.execute(stmt).mappings().all()
 
 
-def selectStatsByEnergyTypeAndDate(
+def select_stats_by_energy_type_and_date(
     session: Session,
     offset: int,
     limit: int,
@@ -137,7 +137,7 @@ def selectStatsByEnergyTypeAndDate(
         .limit(limit)
         .join(EnergyReadingRow)
     )
-    stmt = addParkAndEnergyReadingsWhereCondition(
+    stmt = add_park_and_energy_readings_where_condition(
         stmt=stmt,
         park_names=park_names,
         timezones=timezones,

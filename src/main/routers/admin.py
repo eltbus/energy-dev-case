@@ -12,15 +12,15 @@ from starlette.status import (HTTP_200_OK, HTTP_400_BAD_REQUEST,
                               HTTP_500_INTERNAL_SERVER_ERROR)
 
 from main.constraints import ParkName
-from main.db import getSession
+from main.db import get_session
 from main.db.models import EnergyReadingRow, ParkRow
-from main.utils import genUploadFileAsString
+from main.utils import gen_upload_file_as_string
 
 router = APIRouter(prefix="/admin")
 
 # Utils
 @router.post("/upload_parks", tags=["ADMIN"])
-async def insert_parks_from_file(session: Session = Depends(getSession), upload_file: Optional[UploadFile] = None):
+async def insert_parks_from_file(session: Session = Depends(get_session), upload_file: Optional[UploadFile] = None):
     """
     Insert parks into database.
     Example file:
@@ -34,7 +34,7 @@ async def insert_parks_from_file(session: Session = Depends(getSession), upload_
     else:
         n, row = 0, None
         try:
-            f = genUploadFileAsString(upload_file)
+            f = gen_upload_file_as_string(upload_file)
             for n, row in enumerate(DictReader(f, delimiter=",")):
                 session.add(
                     ParkRow(
@@ -64,7 +64,7 @@ async def insert_parks_from_file(session: Session = Depends(getSession), upload_
 @router.post("/upload_energy_readings", tags=["ADMIN"])
 async def insert_energy_readings_from_file(
     park_name: ParkName = Query(..., description="Park to associate this readings to."),
-    session: Session = Depends(getSession),
+    session: Session = Depends(get_session),
     upload_file: Optional[UploadFile] = None,
 ):
     """
@@ -81,7 +81,7 @@ async def insert_energy_readings_from_file(
         n, row = 0, None
         try:
             park = session.get(ParkRow, park_name)
-            f = genUploadFileAsString(upload_file)
+            f = gen_upload_file_as_string(upload_file)
             for n, row in enumerate(DictReader(f, delimiter=",")):
                 session.add(
                     EnergyReadingRow(

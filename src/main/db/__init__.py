@@ -15,14 +15,14 @@ DB_URL = f"postgresql+psycopg2://{username}:{password}@{host}:{port}/{dbname}"
 engine = create_engine(DB_URL, future=True)
 
 
-def createDbAndTables():
+def create_db_and_tables():
     """
     Initialize tables.
     """
     Base.metadata.create_all(engine)
 
 
-def getSession():
+def get_session():
     """
     Yield session
     """

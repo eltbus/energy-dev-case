@@ -23,7 +23,7 @@ def pack(d: Dict, i: Union[ParkRow, EnergyReadingRow]):
     return d
 
 
-def genUploadFileAsString(upload_file: UploadFile, encoding: str = "utf8") -> Iterator[str]:
+def gen_upload_file_as_string(upload_file: UploadFile, encoding: str = "utf8") -> Iterator[str]:
     """
     Yield lines for storage
     """

@@ -1,7 +1,7 @@
 # -*-coding:utf8-*-
-from main import startApi
+from main import start_api
 
-api = startApi()
+api = start_api()
 
 
 if __name__ == "__main__":

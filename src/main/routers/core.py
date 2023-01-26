@@ -7,10 +7,10 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from main.constraints import EnergyType, ParkName, Timezone
-from main.db import getSession
-from main.db.queries import (selectParks, selectParksWithEnergyReadings,
-                             selectStatsByEnergyTypeAndDate,
-                             selectStatsByParkAndDate)
+from main.db import get_session
+from main.db.queries import (select_parks, select_parks_with_energy_readings,
+                             select_stats_by_energy_type_and_date,
+                             select_stats_by_park_and_date)
 from main.models import EnergyTypeStats, Park, ParkStats
 from main.utils import pack
 
@@ -27,7 +27,7 @@ def redirect_to_docs():
 
 @router.get("/parks", response_model=List[Park], response_model_exclude_none=True)
 def read_parks(
-    session: Session = Depends(getSession),
+    session: Session = Depends(get_session),
     energy_types: List[EnergyType] = Query(default=[]),
     timezones: List[Timezone] = Query(default=[]),
     offset: int = 0,
@@ -36,12 +36,12 @@ def read_parks(
     """
     Get parks in database
     """
-    return selectParks(session=session, timezones=timezones, energy_types=energy_types, offset=offset, limit=limit)
+    return select_parks(session=session, timezones=timezones, energy_types=energy_types, offset=offset, limit=limit)
 
 
 @router.get("/parks/energy_readings", response_model=List[Park])
 def read_parks_with_energy_readings(
-    session: Session = Depends(getSession),
+    session: Session = Depends(get_session),
     park_names: List[ParkName] = Query(default=[]),
     energy_types: List[EnergyType] = Query(default=[]),
     timezones: List[Timezone] = Query(default=[]),
@@ -53,7 +53,7 @@ def read_parks_with_energy_readings(
     """
     Get park energy production readings.
     """
-    rows = selectParksWithEnergyReadings(
+    rows = select_parks_with_energy_readings(
         session,
         park_names=park_names,
         timezones=timezones,
@@ -69,7 +69,7 @@ def read_parks_with_energy_readings(
 
 @router.get("/stats/parks", response_model=List[ParkStats])
 def read_park_stats(
-    session: Session = Depends(getSession),
+    session: Session = Depends(get_session),
     park_names: List[ParkName] = Query(default=[]),
     energy_types: List[EnergyType] = Query(default=[]),
     timezones: List[Timezone] = Query(default=[]),
@@ -81,7 +81,7 @@ def read_park_stats(
     """
     Get park stats
     """
-    return selectStatsByParkAndDate(
+    return select_stats_by_park_and_date(
         session,
         park_names=park_names,
         energy_types=energy_types,
@@ -95,7 +95,7 @@ def read_park_stats(
 
 @router.get("/stats/energy_types", response_model=List[EnergyTypeStats])
 def read_energy_type_stats(
-    session: Session = Depends(getSession),
+    session: Session = Depends(get_session),
     park_names: List[ParkName] = Query(default=[]),
     energy_types: List[EnergyType] = Query(default=[]),
     timezones: List[Timezone] = Query(default=[]),
@@ -107,7 +107,7 @@ def read_energy_type_stats(
     """
     Get energy_type stats
     """
-    return selectStatsByEnergyTypeAndDate(
+    return select_stats_by_energy_type_and_date(
         session,
         park_names=park_names,
         energy_types=energy_types,
