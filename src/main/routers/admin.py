@@ -24,11 +24,9 @@ async def insert_parks_from_file(session: Session = Depends(getSession), upload_
     """
     Insert parks into database.
     Example file:
-        ```
         park_name,timezone,energy_type
         Netterden,Europe/Amsterdam,Wind
         Stadskanaal,Europe/Bucharest,Solar
-        ```
     """
     if not upload_file:
         content = {"error": "No upload file sent"}
@@ -72,11 +70,9 @@ async def insert_energy_readings_from_file(
     """
     Insert energy readings for a given park into database.
     Example file:
-        ```
         datetime,MW
         2020-03-01 00:00:00,10.108
         2020-03-01 00:15:00,11.196
-        ```
     """
     if not upload_file:
         content = {"error": "No upload file sent"}

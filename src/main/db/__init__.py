@@ -16,9 +16,15 @@ engine = create_engine(DB_URL, future=True)
 
 
 def createDbAndTables():
+    """
+    Initialize tables.
+    """
     Base.metadata.create_all(engine)
 
 
 def getSession():
+    """
+    Yield session
+    """
     with Session(engine, future=True) as session:
         yield session

@@ -24,6 +24,9 @@ def pack(d: Dict, i: Union[ParkRow, EnergyReadingRow]):
 
 
 def genUploadFileAsString(upload_file: UploadFile, encoding: str = "utf8") -> Iterator[str]:
+    """
+    Yield lines for storage
+    """
     binary_io: BinaryIO = upload_file.file
     for row in binary_io.readlines():
         yield row.decode(encoding)

@@ -7,18 +7,21 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from main.constraints import EnergyType, ParkName, Timezone
-from main.models import Park
 from main.db import getSession
 from main.db.queries import (selectParks, selectParksWithEnergyReadings,
                              selectStatsByEnergyTypeAndDate,
                              selectStatsByParkAndDate)
+from main.models import EnergyTypeStats, Park, ParkStats
 from main.utils import pack
 
 router = APIRouter()
 
 
 @router.get("/")
-def readRoot():
+def redirect_to_docs():
+    """
+    Redirect to low effort frontend -> OpenAPI
+    """
     return RedirectResponse("docs")
 
 
@@ -30,6 +33,9 @@ def read_parks(
     offset: int = 0,
     limit: int = Query(default=100, lte=100),
 ):
+    """
+    Get parks in database
+    """
     return selectParks(session=session, timezones=timezones, energy_types=energy_types, offset=offset, limit=limit)
 
 
@@ -44,6 +50,9 @@ def read_parks_with_energy_readings(
     offset: int = 0,
     limit: int = Query(default=100, lte=100),
 ):
+    """
+    Get park energy production readings.
+    """
     rows = selectParksWithEnergyReadings(
         session,
         park_names=park_names,
@@ -58,7 +67,7 @@ def read_parks_with_energy_readings(
     return [packed_rows[key] for key in packed_rows]
 
 
-@router.get("/stats/parks")
+@router.get("/stats/parks", response_model=List[ParkStats])
 def read_park_stats(
     session: Session = Depends(getSession),
     park_names: List[ParkName] = Query(default=[]),
@@ -69,6 +78,9 @@ def read_park_stats(
     offset: int = 0,
     limit: int = Query(default=100, lte=100),
 ):
+    """
+    Get park stats
+    """
     return selectStatsByParkAndDate(
         session,
         park_names=park_names,
@@ -81,7 +93,7 @@ def read_park_stats(
     )
 
 
-@router.get("/stats/energy_types")
+@router.get("/stats/energy_types", response_model=List[EnergyTypeStats])
 def read_energy_type_stats(
     session: Session = Depends(getSession),
     park_names: List[ParkName] = Query(default=[]),
@@ -92,6 +104,9 @@ def read_energy_type_stats(
     offset: int = 0,
     limit: int = Query(default=100, lte=100),
 ):
+    """
+    Get energy_type stats
+    """
     return selectStatsByEnergyTypeAndDate(
         session,
         park_names=park_names,

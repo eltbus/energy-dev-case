@@ -20,18 +20,21 @@ def addParkAndEnergyReadingsWhereCondition(
     start_date: Optional[date] = None,
     end_date: Optional[date] = None,
 ):
+    """
+    Compound select statatement with where conditions
+    """
     if park_names:
-        stmt = stmt.where(ParkRow.name.in_(park_names))  # type:ignore
+        stmt = stmt.where(ParkRow.name.in_(park_names))
     if timezones:
-        stmt = stmt.where(ParkRow.timezone.in_(timezones))  # type:ignore
+        stmt = stmt.where(ParkRow.timezone.in_(timezones))
     if energy_types:
-        stmt = stmt.where(ParkRow.energy_type.in_(energy_types))  # type:ignore
+        stmt = stmt.where(ParkRow.energy_type.in_(energy_types))
     if start_date and end_date:
-        stmt = stmt.where(EnergyReadingRow.timestamp.between(start_date, end_date))  # type:ignore
+        stmt = stmt.where(EnergyReadingRow.timestamp.between(start_date, end_date))
     elif start_date:
-        stmt = stmt.where(EnergyReadingRow.timestamp > start_date)  # type:ignore
+        stmt = stmt.where(EnergyReadingRow.timestamp > start_date)
     elif end_date:
-        stmt = stmt.where(EnergyReadingRow.timestamp < end_date)  # type:ignore
+        stmt = stmt.where(EnergyReadingRow.timestamp < end_date)
     return stmt
 
 
@@ -39,17 +42,10 @@ def selectParks(
     session: Session, timezones: List[Timezone], energy_types: List[EnergyType], offset: int, limit: int
 ) -> Sequence[RowMapping]:
     stmt = select(ParkRow.name, ParkRow.timezone, ParkRow.energy_type).offset(offset).limit(limit)
-    match (not timezones, not energy_types):
-        case (True, True):
-            pass
-        case (True, False):
-            stmt = stmt.where(ParkRow.energy_type.in_(energy_types))  # type:ignore
-        case (False, True):
-            stmt = stmt.where(ParkRow.timezone.in_(timezones))  # type:ignore
-        case (False, False):
-            stmt = stmt.where(ParkRow.timezone.in_(timezones)).where(
-                ParkRow.energy_type.in_(energy_types)
-            )  # type:ignore
+    if timezones:
+        stmt = stmt.where(ParkRow.timezone.in_(timezones))
+    if energy_types:
+        stmt = stmt.where(ParkRow.energy_type.in_(energy_types))
     return session.execute(stmt).mappings().all()
 
 
