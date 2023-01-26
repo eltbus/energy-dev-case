@@ -1,10 +1,15 @@
 format:
-	@poetry run python -Bm black main.py
+	@poetry run python -Bm black src/
+	@poetry run python -Bm isort src/
+
+test:
+	@PYTHONPATH=src poetry run python -Bm coverage run -m pytest src/tests -vv 
+
+run:
+	@PYTHONPATH=src poetry run python -Bm uvicorn src.main.entrypoint:api --port 8000 --reload
+
 requirements:
 	@poetry export -o requirements.txt --without-hashes --without-urls
-run-local:
-	@poetry run python -Bm uvicorn main:app --host 0.0.0.0
-run-docker:
-	@docker run --rm -p 8000:8000 myapi
+
 build:
 	@poetry run docker build . -t myapi
