@@ -2,12 +2,11 @@
 line-length = 120
 
 [tool.poetry]
-name = "secret-company-exercise-new"
+name = "energy-dev-case"
 version = "0.1.0"
 description = ""
 authors = ["Guillermo Enrique Sánchez de Abreu <naselliug@gmail.com>"]
 readme = "README.md"
-packages = [{include = "secret_company_exercise_new"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
