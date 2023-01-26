@@ -1,5 +1,5 @@
 from functools import reduce
-from typing import List
+from typing import List, Dict
 
 from fastapi import APIRouter, Depends, Query
 from fastapi.responses import RedirectResponse
@@ -7,8 +7,7 @@ from sqlalchemy.orm import Session
 
 from main.constraints import EnergyType, ParkName, Timezone
 from main.db import getSession
-from main.db.queries import (add_dummies, eggs, selectParks,
-                             selectParksWithEnergyReadings)
+from main.db.queries import (eggs, selectParks, selectParksWithEnergyReadings, total)
 from main.utils import pack
 
 router = APIRouter()
@@ -22,8 +21,8 @@ def read_root():
 @router.get("/parks")
 def read_parks(
     session: Session = Depends(getSession),
-    energy_types: List[EnergyType] = Query(None),
-    timezones: List[Timezone] = Query(None),
+    energy_types: List[EnergyType] = Query(default=[]),
+    timezones: List[Timezone] = Query(default=[]),
     offset: int = 0,
     limit: int = Query(default=100, lte=100),
 ):
@@ -33,16 +32,17 @@ def read_parks(
 @router.get("/parks_with_energy_readings")
 def read_parks_with_energy_readings(
     session: Session = Depends(getSession),
-    park_names: List[ParkName] = Query(None),
-    energy_types: List[EnergyType] = Query(None),
-    timezones: List[Timezone] = Query(None),
+    park_names: List[ParkName] = Query(default=[]),
+    energy_types: List[EnergyType] = Query(default=[]),
+    timezones: List[Timezone] = Query(default=[]),
     offset: int = 0,
     limit: int = Query(default=100, lte=100),
 ):
     rows = selectParksWithEnergyReadings(
         session, park_names=park_names, timezones=timezones, energy_types=energy_types, offset=offset, limit=limit
     )
-    return reduce(pack, rows, {})  # type:ignore
+    packed_rows: Dict = reduce(pack, rows, {})  # type:ignore
+    return [packed_rows[key] for key in packed_rows]
 
 
 @router.get("/stats")
@@ -50,7 +50,6 @@ def read_stats(session: Session = Depends(getSession)):
     return eggs(session)
 
 
-@router.get("/dummy")
-def dummy_data(session: Session = Depends(getSession)):
-    add_dummies(session)
-    return "OK"
+@router.get("/production")
+def agg_total_production_by_date(session: Session = Depends(getSession)):
+    return total(session)

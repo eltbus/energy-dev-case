@@ -1,5 +1,6 @@
-from sqlalchemy import FLOAT, INTEGER, TIMESTAMP, VARCHAR, Column, ForeignKey
+from sqlalchemy import Column, ForeignKey
 from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.types import FLOAT, INTEGER, TIMESTAMP, VARCHAR
 
 Base = declarative_base()
 
