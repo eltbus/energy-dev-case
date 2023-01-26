@@ -19,8 +19,8 @@ from main.utils import genUploadFileAsString
 router = APIRouter(prefix="/admin")
 
 # Utils
-@router.post("/upload_parks")
-async def insertParksFromFile(session: Session = Depends(getSession), upload_file: Optional[UploadFile] = None):
+@router.post("/upload_parks", tags=["ADMIN"])
+async def insert_parks_from_file(session: Session = Depends(getSession), upload_file: Optional[UploadFile] = None):
     """
     Insert parks into database.
     Example file:
@@ -63,8 +63,8 @@ async def insertParksFromFile(session: Session = Depends(getSession), upload_fil
     return JSONResponse(content, status_code=status_code)
 
 
-@router.post("/upload_energy_readings")
-async def insertEnergyReadingsFromFile(
+@router.post("/upload_energy_readings", tags=["ADMIN"])
+async def insert_energy_readings_from_file(
     park_name: ParkName = Query(..., description="Park to associate this readings to."),
     session: Session = Depends(getSession),
     upload_file: Optional[UploadFile] = None,

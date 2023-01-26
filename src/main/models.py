@@ -7,7 +7,7 @@ from main.constraints import EnergyType, ParkName, Timezone
 
 
 class EnergyReading(BaseModel):
-    value: float
+    megawatts: float
     timestamp: datetime
 
 
@@ -15,7 +15,7 @@ class Park(BaseModel):
     name: ParkName
     timezone: Timezone
     energy_type: EnergyType
-    metrics: List[EnergyReading] = Field(None)
+    energy_readings: List[EnergyReading] = Field(None)
 
     class Config:
         orm_mode = True

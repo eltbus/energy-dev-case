@@ -10,7 +10,7 @@ def pack(d: Dict, i: Union[ParkRow, EnergyReadingRow]):
     """
     Group by util for ParkRow and EnergyReadings to reduce response size.
     """
-    energy_reading = {"value": i.megawatts, "timestamp": i.timestamp}
+    energy_reading = {"megawatts": i.megawatts, "timestamp": i.timestamp}
     if d.get(i.name) is not None:
         d[i.name]["energy_readings"].append(energy_reading)
     else:
