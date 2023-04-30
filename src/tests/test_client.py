@@ -64,12 +64,22 @@ def test_upload_wrong_filename_returns_error_response(client: TestClient, dummy_
     response = client.post("/admin/upload_parks", files=[("hola", dummy_park_file)])
     assert response.is_error
     assert response.is_client_error
-    assert response.text == '{"detail":[{"loc":["body","upload_file"],"msg":"field required","type":"value_error.missing"}]}'
+    assert (
+        response.text
+        == '{"detail":[{"loc":["body","upload_file"],"msg":"field required","type":"value_error.missing"}]}'
+    )
 
-    response = client.post("/admin/upload_energy_readings", params={'park_name': ParkName.netterden.value}, files=[("hola", dummy_energy_readings_file)])
+    response = client.post(
+        "/admin/upload_energy_readings",
+        params={"park_name": ParkName.netterden.value},
+        files=[("hola", dummy_energy_readings_file)],
+    )
     assert response.is_error
     assert response.is_client_error
-    assert response.text == '{"detail":[{"loc":["body","upload_file"],"msg":"field required","type":"value_error.missing"}]}'
+    assert (
+        response.text
+        == '{"detail":[{"loc":["body","upload_file"],"msg":"field required","type":"value_error.missing"}]}'
+    )
 
 
 def test_empty_file_upserts_no_park_rows(client: TestClient, empty_file):
@@ -77,8 +87,13 @@ def test_empty_file_upserts_no_park_rows(client: TestClient, empty_file):
     assert response.is_success
     assert response.text == '{"message":"0 rows successfully inserted/updated"}'
 
+
 def test_empty_file_upserts_no_energy_reading_rows(client: TestClient, empty_file):
-    response = client.post("/admin/upload_energy_readings", params={'park_name': ParkName.netterden.value}, files=[("upload_file", empty_file)])
+    response = client.post(
+        "/admin/upload_energy_readings",
+        params={"park_name": ParkName.netterden.value},
+        files=[("upload_file", empty_file)],
+    )
     assert response.is_success
     assert response.text == '{"message":"0 rows successfully inserted/updated"}'
 
@@ -90,6 +105,10 @@ def test_dummy_park_data(client: TestClient, dummy_park_file):
 
 
 def test_dummy_energy_readings_data(client: TestClient, dummy_energy_readings_file):
-    response = client.post("/admin/upload_energy_readings", params={'park_name': ParkName.netterden.value}, files=[("upload_file", dummy_energy_readings_file)])
+    response = client.post(
+        "/admin/upload_energy_readings",
+        params={"park_name": ParkName.netterden.value},
+        files=[("upload_file", dummy_energy_readings_file)],
+    )
     assert response.is_success
     assert response.text == '{"message":"1 rows successfully inserted/updated"}'

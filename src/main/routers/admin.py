@@ -1,8 +1,9 @@
 # -*-coding:utf8-*-
 from csv import DictReader
 from datetime import datetime
+from contextlib import contextmanager
 
-from fastapi import APIRouter, Depends, Query, UploadFile
+from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, BackgroundTasks
 from fastapi.responses import JSONResponse
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -17,11 +18,51 @@ from main.utils import gen_upload_file_as_string
 
 router = APIRouter(prefix="/admin")
 
-# Utils
-@router.post("/upload_parks", tags=["ADMIN"])
-async def insert_parks_from_file(*, session: Session = Depends(get_session), upload_file: UploadFile):
+
+@contextmanager
+def handle_upsert():
     """
-    Insert parks into database.
+    A context manager for handling exceptions during the upsert operation.
+
+    Raises:
+        HTTPException: For various error scenarios:
+            - HTTP_400_BAD_REQUEST for an invalid row format.
+            - HTTP_409_CONFLICT for integrity errors during upsert.
+            - HTTP_500_INTERNAL_SERVER_ERROR for other exceptions.
+    """
+    try:
+        yield
+    except KeyError:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Invalid row format. Upload aborted.")
+    except IntegrityError as e:
+        raise HTTPException(status_code=HTTP_409_CONFLICT, detail=repr(e))
+    except Exception:
+        raise HTTPException(status_code=HTTP_500_INTERNAL_SERVER_ERROR, detail="There was an error uploading the file")
+
+
+@router.post("/upload_parks", tags=["ADMIN"])
+async def insert_parks_from_file(
+    *,
+    background_tasks: BackgroundTasks,
+    session: Session = Depends(get_session),
+    upload_file: UploadFile,
+):
+    """
+    Insert parks into the database from an uploaded CSV file.
+
+    The CSV file must have the following columns:
+    park_name: The unique name of the park.
+    timezone: The timezone in which the park is located.
+    energy_type: The type of energy produced by the park (e.g., Wind, Solar).
+
+    Args:
+        background_tasks: FastAPI's BackgroundTasks instance for managing background tasks.
+        session: The database session.
+        upload_file: The uploaded CSV file.
+
+    Returns:
+        A JSON response with the number of rows successfully inserted/updated.
+
     Example file:
         park_name,timezone,energy_type
         Netterden,Europe/Amsterdam,Wind
@@ -29,42 +70,48 @@ async def insert_parks_from_file(*, session: Session = Depends(get_session), upl
     """
     n = 0
     try:
-        f = gen_upload_file_as_string(upload_file)
-        for n, row in enumerate(DictReader(f, delimiter=","), start=1):
-            session.add(
-                ParkRow(
-                    name=row["park_name"],
-                    timezone=row["timezone"],
-                    energy_type=row["energy_type"],
+        f = gen_upload_file_as_string(upload_file.file)
+        with handle_upsert():
+            for n, row in enumerate(DictReader(f, delimiter=","), start=1):
+                session.add(
+                    ParkRow(
+                        name=row["park_name"],
+                        timezone=row["timezone"],
+                        energy_type=row["energy_type"],
+                    )
                 )
-            )
-        session.commit()
-    except KeyError as e:
-        status_code = HTTP_400_BAD_REQUEST
-        content = {"error": f"Invalid row format. Upload aborted."}
-    except IntegrityError as e:
-        status_code = HTTP_409_CONFLICT
-        content = {"error": repr(e)}
-    except Exception as e:
-        status_code = HTTP_500_INTERNAL_SERVER_ERROR
-        content = {"error": "There was an error uploading the file"}
-    else:
-        status_code = HTTP_200_OK
-        content = {"message": f"{n} rows successfully inserted/updated"}
+            session.commit()
     finally:
-        await upload_file.close()
-    return JSONResponse(content, status_code=status_code)
+        background_tasks.add_task(upload_file.file.close)
+
+    content = {"message": f"{n} rows successfully inserted/updated"}
+    return JSONResponse(content, status_code=HTTP_200_OK)
 
 
 @router.post("/upload_energy_readings", tags=["ADMIN"])
 async def insert_energy_readings_from_file(
     *,
+    background_tasks: BackgroundTasks,
     park_name: ParkName = Query(..., description="Park to associate this readings to."),
     session: Session = Depends(get_session),
     upload_file: UploadFile,
 ):
     """
-    Insert energy readings for a given park into database.
+    Insert energy readings for a given park into the database from an uploaded CSV file.
+
+    The CSV file must have the following columns:
+    datetime: The timestamp of the energy reading (ISO 8601 format).
+    MW: The energy production in megawatts at the given timestamp.
+
+    Args:
+        background_tasks: FastAPI's BackgroundTasks instance for managing background tasks.
+        park_name: The name of the park to associate the energy readings with.
+        session: The database session.
+        upload_file: The uploaded CSV file.
+
+    Returns:
+        A JSON response with the number of rows successfully inserted/updated.
+
     Example file:
         datetime,MW
         2020-03-01 00:00:00,10.108
@@ -72,29 +119,19 @@ async def insert_energy_readings_from_file(
     """
     n = 0
     try:
-        f = gen_upload_file_as_string(upload_file)
-        for n, row in enumerate(DictReader(f, delimiter=","), start=1):
-            session.add(
-                EnergyReadingRow(
-                    park_name=park_name,
-                    timestamp=datetime.fromisoformat(row["datetime"]),
-                    megawatts=row["MW"],
+        f = gen_upload_file_as_string(upload_file.file)
+        with handle_upsert():
+            for n, row in enumerate(DictReader(f, delimiter=","), start=1):
+                session.add(
+                    EnergyReadingRow(
+                        park_name=park_name,
+                        timestamp=datetime.fromisoformat(row["datetime"]),
+                        megawatts=row["MW"],
+                    )
                 )
-            )
-        session.commit()
-    except KeyError as e:
-        status_code = HTTP_400_BAD_REQUEST
-        content = {"error": f"Invalid row format. Upload aborted.\n{repr(e)}"}
-    except IntegrityError as e:
-        status_code = HTTP_409_CONFLICT
-        content = {"error": repr(e)}
-    except Exception as e:
-        status_code = HTTP_500_INTERNAL_SERVER_ERROR
-        print(repr(e))
-        content = {"error": "There was an error uploading the file"}
-    else:
-        status_code = HTTP_200_OK
-        content = {"message": f"{n} rows successfully inserted/updated"}
+            session.commit()
     finally:
-        await upload_file.close()
-    return JSONResponse(content, status_code=status_code)
+        background_tasks.add_task(upload_file.file.close)
+
+    content = {"message": f"{n} rows successfully inserted/updated"}
+    return JSONResponse(content, status_code=HTTP_200_OK)

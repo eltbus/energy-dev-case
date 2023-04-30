@@ -1,8 +1,6 @@
 # -*-coding:utf8-*-
 from typing import BinaryIO, Dict, Iterator, Union
 
-from fastapi import UploadFile
-
 from main.db.models import EnergyReadingRow, ParkRow
 
 
@@ -23,10 +21,9 @@ def pack(d: Dict, i: Union[ParkRow, EnergyReadingRow]):
     return d
 
 
-def gen_upload_file_as_string(upload_file: UploadFile, encoding: str = "utf8") -> Iterator[str]:
+def gen_upload_file_as_string(binary_io: BinaryIO, encoding: str = "utf8") -> Iterator[str]:
     """
     Yield lines for storage
     """
-    binary_io: BinaryIO = upload_file.file
-    for row in binary_io.readlines():
-        yield row.decode(encoding)
+    for line in binary_io.readlines():
+        yield line.decode(encoding)
