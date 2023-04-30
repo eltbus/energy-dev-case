@@ -3,8 +3,8 @@ from datetime import datetime
 from typing import List
 
 from sqlalchemy import ForeignKey
-from sqlalchemy.orm import DeclarativeBase, mapped_column, Mapped, relationship
-from sqlalchemy.types import FLOAT, Integer, TIMESTAMP, String
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy.types import FLOAT, TIMESTAMP, Integer, String
 
 
 class Base(DeclarativeBase):
@@ -17,7 +17,9 @@ class ParkRow(Base):
     name: Mapped[str] = mapped_column(String(50), primary_key=True)
     timezone: Mapped[str] = mapped_column(String(50))
     energy_type: Mapped[str] = mapped_column(String(50))
-    energy_readings: Mapped[List["EnergyReadingRow"]] = relationship("EnergyReadingRow", back_populates="park", cascade="all, delete-orphan")
+    energy_readings: Mapped[List["EnergyReadingRow"]] = relationship(
+        "EnergyReadingRow", back_populates="park", cascade="all, delete-orphan"
+    )
 
 
 class EnergyReadingRow(Base):
