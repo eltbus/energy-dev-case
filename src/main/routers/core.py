@@ -39,7 +39,7 @@ def read_parks(
     return select_parks(session=session, timezones=timezones, energy_types=energy_types, offset=offset, limit=limit)
 
 
-@router.get("/parks/energy_readings", response_model=List[Park])
+@router.get("/parks/energy-readings", response_model=List[Park])
 def read_parks_with_energy_readings(
     session: Session = Depends(get_session),
     park_names: List[ParkName] = Query(default=[]),

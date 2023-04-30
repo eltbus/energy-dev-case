@@ -40,7 +40,7 @@ def handle_upsert():
         raise HTTPException(status_code=HTTP_500_INTERNAL_SERVER_ERROR, detail="There was an error uploading the file")
 
 
-@router.post("/upload_parks", tags=["ADMIN"])
+@router.post("/parks/upload", tags=["ADMIN"])
 async def insert_parks_from_file(
     *,
     background_tasks: BackgroundTasks,
@@ -88,7 +88,7 @@ async def insert_parks_from_file(
     return JSONResponse(content, status_code=HTTP_200_OK)
 
 
-@router.post("/upload_energy_readings", tags=["ADMIN"])
+@router.post("/energy-readings/upload", tags=["ADMIN"])
 async def insert_energy_readings_from_file(
     *,
     background_tasks: BackgroundTasks,

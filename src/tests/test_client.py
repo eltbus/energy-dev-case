@@ -17,7 +17,7 @@ def test_parks_is_responsive(client: TestClient):
 
 
 def test_parks_energy_readings_is_responsive(client: TestClient):
-    response = client.get("/parks/energy_readings")
+    response = client.get("/parks/energy-readings")
     assert response.status_code == 200
 
 
@@ -61,7 +61,7 @@ def dummy_energy_readings_file():
 
 
 def test_upload_wrong_filename_returns_error_response(client: TestClient, dummy_park_file, dummy_energy_readings_file):
-    response = client.post("/admin/upload_parks", files=[("hola", dummy_park_file)])
+    response = client.post("/admin/parks/upload", files=[("hola", dummy_park_file)])
     assert response.is_error
     assert response.is_client_error
     assert (
@@ -70,7 +70,7 @@ def test_upload_wrong_filename_returns_error_response(client: TestClient, dummy_
     )
 
     response = client.post(
-        "/admin/upload_energy_readings",
+        "/admin/energy-readings/upload",
         params={"park_name": ParkName.netterden.value},
         files=[("hola", dummy_energy_readings_file)],
     )
@@ -83,14 +83,14 @@ def test_upload_wrong_filename_returns_error_response(client: TestClient, dummy_
 
 
 def test_empty_file_upserts_no_park_rows(client: TestClient, empty_file):
-    response = client.post("/admin/upload_parks", files=[("upload_file", empty_file)])
+    response = client.post("/admin/parks/upload", files=[("upload_file", empty_file)])
     assert response.is_success
     assert response.text == '{"message":"0 rows successfully inserted/updated"}'
 
 
 def test_empty_file_upserts_no_energy_reading_rows(client: TestClient, empty_file):
     response = client.post(
-        "/admin/upload_energy_readings",
+        "/admin/energy-readings/upload",
         params={"park_name": ParkName.netterden.value},
         files=[("upload_file", empty_file)],
     )
@@ -99,14 +99,14 @@ def test_empty_file_upserts_no_energy_reading_rows(client: TestClient, empty_fil
 
 
 def test_dummy_park_data(client: TestClient, dummy_park_file):
-    response = client.post("/admin/upload_parks", files=[("upload_file", dummy_park_file)])
+    response = client.post("/admin/parks/upload", files=[("upload_file", dummy_park_file)])
     assert response.is_success
     assert response.text == '{"message":"1 rows successfully inserted/updated"}'
 
 
 def test_dummy_energy_readings_data(client: TestClient, dummy_energy_readings_file):
     response = client.post(
-        "/admin/upload_energy_readings",
+        "/admin/energy-readings/upload",
         params={"park_name": ParkName.netterden.value},
         files=[("upload_file", dummy_energy_readings_file)],
     )
