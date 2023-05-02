@@ -11,8 +11,8 @@ run:
 requirements:
 	@poetry export -o requirements.txt --without-hashes --without-urls
 
-build:
+build: requirements
 	@poetry run docker build . -t myapi
 
-deploy:
+deploy: build
 	terraform apply -auto-approve
