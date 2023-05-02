@@ -1,12 +1,11 @@
 # Functional Design
 The context required for a successful implementation of the solution could be:
 
-1. Warehouse to store raw and processed data.
-2. Event streaming to queue events with raw data.
+1. Warehouse to store raw and processed data. -> BlobStorage
+2. Event streaming to queue -> Kafka
 3. An ETL to pull the raw events into the warehouse.
 4. An ETL to process the data and load it into the database.
-5. Credential manager solution to handle users.
-6. API that can query the Database.
+6. REST API that can query the Database.
 7. Frontend that can query the API.
 
 # Where should the company deploy this API?
