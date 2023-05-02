@@ -17,6 +17,7 @@ from main.utils import pack
 router = APIRouter()
 
 
+@router.head("/")
 @router.get("/")
 def redirect_to_docs():
     """
