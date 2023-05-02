@@ -13,3 +13,6 @@ requirements:
 
 build:
 	@poetry run docker build . -t myapi
+
+deploy:
+	terraform apply -auto-approve
