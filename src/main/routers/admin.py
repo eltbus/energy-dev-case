@@ -1,9 +1,10 @@
 # -*-coding:utf8-*-
+from contextlib import contextmanager
 from csv import DictReader
 from datetime import datetime
-from contextlib import contextmanager
 
-from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, BackgroundTasks
+from fastapi import (APIRouter, BackgroundTasks, Depends, HTTPException, Query,
+                     UploadFile)
 from fastapi.responses import JSONResponse
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
