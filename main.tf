@@ -18,6 +18,10 @@ resource "docker_image" "postgres" {
   name = "postgres:latest"
 }
 
+resource "docker_volume" "db_data" {
+  name = "db_data"
+}
+
 resource "docker_container" "db" {
   name  = "db"
   image = docker_image.postgres.image_id
@@ -34,6 +38,10 @@ resource "docker_container" "db" {
   ports {
     internal = 5432
     external = 5432
+  }
+  volumes {
+    host_path = "${abspath(path.root)}/data/db"
+    container_path = "/var/lib/postgresql/data"
   }
 }
 
