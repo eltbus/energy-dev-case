@@ -1,5 +1,5 @@
 # -*-coding:utf8-*-
-from datetime import datetime
+from datetime import date, datetime
 from typing import List
 
 from sqlalchemy import ForeignKey
@@ -30,3 +30,30 @@ class EnergyReadingRow(Base):
     timestamp: Mapped[datetime] = mapped_column(TIMESTAMP)
     park_name: Mapped[str] = mapped_column(String(50), ForeignKey("parks.name"))
     park: Mapped["ParkRow"] = relationship("ParkRow", back_populates="energy_readings")
+
+
+class StationRow(Base):
+    __tableschema__ = "public"
+    __tablename__ = "stations"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    code: Mapped[str]
+    name: Mapped[str]
+    province: Mapped[str]
+    latitude: Mapped[str]
+    longitude: Mapped[str]
+    altitude: Mapped[str]
+
+    measurements: Mapped[List["MeasurementRow"]] = relationship("MeasurementRow", back_populates="station")
+
+
+class MeasurementRow(Base):
+    __tableschema__ = "public"
+    __tablename__ = "measurements"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    station_id: Mapped[str] = mapped_column(ForeignKey("stations.id"))
+    date: Mapped[date]
+    avg_temp: Mapped[float]
+    min_temp: Mapped[float]
+    max_temp: Mapped[float]
+
+    station: Mapped["StationRow"] = relationship("StationRow", back_populates="measurements")
