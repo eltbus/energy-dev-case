@@ -1,34 +1,28 @@
 from tempfile import SpooledTemporaryFile
+from typing import List
 
 import pytest
+from fastapi import HTTPException
 from fastapi.testclient import TestClient
 
 from main.constraints import ParkName
+from main.routers.admin import handle_upsert
+from tests.conftest import LOGGER
+
+# from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 
 
-def test_frontend_is_responsive(client: TestClient):
-    response = client.get("/")
-    assert response.status_code == 200
+def test_status_code_is_http_200_ok(client: TestClient, routes: List[str]):
+    for route in routes:
+        LOGGER.debug(f"GET to endpoint '{route}'")
+        response = client.get(route)
+        assert response.status_code == 200
 
 
-def test_parks_is_responsive(client: TestClient):
-    response = client.get("/parks")
-    assert response.status_code == 200
-
-
-def test_parks_energy_readings_is_responsive(client: TestClient):
-    response = client.get("/parks/energy-readings")
-    assert response.status_code == 200
-
-
-def test_parks_stats_is_responsive(client: TestClient):
-    response = client.get("/stats/parks")
-    assert response.status_code == 200
-
-
-def test_energy_type_stats_is_responsive(client: TestClient):
-    response = client.get("/stats/energy_types")
-    assert response.status_code == 200
+def test_handle_upsert_raises_exceptions():
+    with pytest.raises(HTTPException):
+        with handle_upsert():
+            raise Exception
 
 
 @pytest.fixture(scope="session")

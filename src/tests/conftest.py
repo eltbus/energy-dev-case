@@ -1,24 +1,31 @@
 import os
-from datetime import datetime
+from datetime import date, datetime
 from typing import List
 
 import pytest
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
+from starlette.routing import Route
 from testcontainers.postgres import PostgresContainer
 
 from main import start_api
 from main.constraints import EnergyType, ParkName, Timezone
 from main.db import get_session
-from main.db.models import Base, EnergyReadingRow, ParkRow
+from main.db.models import (Base, EnergyReadingRow, MeasurementRow, ParkRow,
+                            StationRow)
 
 api = start_api()
 client = TestClient(api)
 
+from logging import getLogger
+
+LOGGER = getLogger(__name__)
+
 
 @pytest.fixture(scope="session")
-def data() -> List[ParkRow]:
+def park_data() -> List[ParkRow]:
     """
     Dummy data
     """
@@ -41,8 +48,35 @@ def data() -> List[ParkRow]:
     ]
 
 
+@pytest.fixture(scope="session")
+def stations_data() -> List[StationRow]:
+    """
+    Dummy data
+    """
+    return [
+        StationRow(
+            code="0000",
+            name="0000",
+            province="foo",
+            latitude="foo",
+            longitude="foo",
+            altitude="foo",
+            measurements=[MeasurementRow(date=date(1993, 7, 22), avg_temp=20, min_temp=0, max_temp=25)],
+        ),
+        StationRow(
+            code="0001",
+            name="0001",
+            province="foo",
+            latitude="foo",
+            longitude="foo",
+            altitude="foo",
+            measurements=[MeasurementRow(date=date.today(), avg_temp=20, min_temp=0, max_temp=25)],
+        ),
+    ]
+
+
 @pytest.fixture(scope="session")  # Re-use scope to speed up tests
-def session(data: List[ParkRow]):
+def session(park_data: List[ParkRow], stations_data: List[StationRow]):
     """
     Start containerized database -> engine -> add dummy data -> and yield session
     """
@@ -59,14 +93,26 @@ def session(data: List[ParkRow]):
 
         # Initialize some rows
         with Session(engine, future=True) as session:
-            session.add_all(data)
+            session.add_all(park_data)
+            session.add_all(stations_data)
             session.commit()
             yield session
 
 
+@pytest.fixture(name="api")
+def api_fixture() -> FastAPI:
+    return start_api()
+
+
+@pytest.fixture(name="routes")
+def routes_fixture() -> List[str]:
+    from main.routers.core import router as core_router
+
+    return [route.path for route in core_router.routes if isinstance(route, Route)]
+
+
 @pytest.fixture(name="client")
-def client_fixture(session: Session):
-    api = start_api()
+def client_fixture(session: Session, api):
     api.dependency_overrides[get_session] = lambda: session
     client = TestClient(api)
     yield client

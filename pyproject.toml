@@ -26,6 +26,7 @@ testcontainers-postgres = "^0.0.1rc1"
 httpx = "^0.23.3"
 coverage = "^7.1.0"
 isort = "^5.11.4"
+pytest-mock = "^3.10.0"
 
 [build-system]
 requires = ["poetry-core"]

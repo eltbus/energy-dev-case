@@ -27,5 +27,4 @@ def start_api() -> FastAPI:
     from main.routers.admin import router as admin
 
     api.include_router(admin)
-
     return api

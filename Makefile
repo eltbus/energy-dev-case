@@ -3,7 +3,7 @@ format:
 	@poetry run python -Bm isort src/
 
 test:
-	@PYTHONPATH=src poetry run python -Bm coverage run -m pytest src/tests -vv 
+	@PYTHONPATH=src poetry run python -Bm coverage run -m pytest src/tests
 
 test-quiet:
 	@PYTHONPATH=src poetry run python -Bm pytest --quiet src/tests >/dev/null 2>&1
