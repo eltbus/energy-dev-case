@@ -13,8 +13,7 @@ from testcontainers.postgres import PostgresContainer
 from main import start_api
 from main.constraints import EnergyType, ParkName, Timezone
 from main.db import get_session
-from main.db.models import (Base, EnergyReadingRow, MeasurementRow, ParkRow,
-                            StationRow)
+from main.db.models import Base, EnergyReadingRow, MeasurementRow, ParkRow, StationRow
 
 api = start_api()
 client = TestClient(api)

@@ -3,20 +3,22 @@ from contextlib import contextmanager
 from csv import DictReader
 from datetime import date, datetime
 
-from fastapi import (APIRouter, BackgroundTasks, Depends, HTTPException, Query,
-                     UploadFile)
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, UploadFile
 from fastapi.responses import JSONResponse
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import Session
-from starlette.status import (HTTP_200_OK, HTTP_400_BAD_REQUEST,
-                              HTTP_404_NOT_FOUND, HTTP_409_CONFLICT,
-                              HTTP_500_INTERNAL_SERVER_ERROR)
+from starlette.status import (
+    HTTP_200_OK,
+    HTTP_400_BAD_REQUEST,
+    HTTP_404_NOT_FOUND,
+    HTTP_409_CONFLICT,
+    HTTP_500_INTERNAL_SERVER_ERROR,
+)
 
 from main.constraints import ParkName
 from main.db import get_session
-from main.db.models import (EnergyReadingRow, MeasurementRow, ParkRow,
-                            StationRow)
+from main.db.models import EnergyReadingRow, MeasurementRow, ParkRow, StationRow
 from main.utils import gen_upload_file_as_string
 
 router = APIRouter(prefix="/admin", tags=["ADMIN"])

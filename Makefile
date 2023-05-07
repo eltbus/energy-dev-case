@@ -1,6 +1,5 @@
 format:
 	@poetry run python -Bm black src/
-	@poetry run python -Bm isort src/
 
 test:
 	@PYTHONPATH=src poetry run python -Bm coverage run -m pytest src/tests

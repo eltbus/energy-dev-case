@@ -8,9 +8,12 @@ from sqlalchemy.orm import Session
 
 from main.constraints import EnergyType, ParkName, Timezone
 from main.db import get_session
-from main.db.queries import (select_parks, select_parks_with_energy_readings,
-                             select_stats_by_energy_type_and_date,
-                             select_stats_by_park_and_date)
+from main.db.queries import (
+    select_parks,
+    select_parks_with_energy_readings,
+    select_stats_by_energy_type_and_date,
+    select_stats_by_park_and_date,
+)
 from main.models import EnergyTypeStats, Park, ParkStats
 from main.utils import pack
 
