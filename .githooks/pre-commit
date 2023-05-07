@@ -8,15 +8,21 @@ if ! git diff-index --quiet HEAD --; then
   # Run tests on all changes
   make test
 
+  # Save exit code of the test
+  exit_code=$?
+
   # Pop the stash to restore unstaged changes
   git stash pop -q
 else
-  # If there are no changes, run and `make test` directly
+  # If there are no changes, run `make test` directly
   make test
+
+  # Save exit code of the test
+  exit_code=$?
 fi
 
 # If the tests fail, abort the commit
-if [ $? -ne 0 ]; then
+if [ $exit_code -ne 0 ]; then
   echo "Tests failed. Aborting commit."
   exit 1
 fi
