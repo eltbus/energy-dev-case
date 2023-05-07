@@ -1,23 +1,21 @@
 #!/bin/bash
 
-# Check if there are any changes in the working directory
-if ! git diff-index --quiet HEAD --; then
-  # If there are changes, stash any unstaged changes
+# Check if there is anything staged for commit
+if git diff --cached --quiet; then
+  echo "Nothing staged for commit. Aborting tests and commit."
+  exit 1
+fi
+
+# Check if there are any non-staged changes in the working directory
+if ! git diff --quiet; then
+  # Stash unstaged changes
   git stash -q --keep-index
-
-  # Run tests on all changes
   make test
-
-  # Save exit code of the test
   exit_code=$?
-
-  # Pop the stash to restore unstaged changes
+  # Restore stashed unstaged changes
   git stash pop -q
 else
-  # If there are no changes, run `make test` directly
   make test
-
-  # Save exit code of the test
   exit_code=$?
 fi
 
