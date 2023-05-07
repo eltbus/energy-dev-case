@@ -1,0 +1,38 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: ${username}
+      POSTGRES_PASSWORD: ${password}
+      POSTGRES_DB: ${dbname}
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "${dbname}", "-U", "${username}"]
+      timeout: 30s
+      interval: 10s
+      retries: 3
+    networks:
+      - my_network
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+
+  api:
+    image: myapi
+    environment:
+      POSTGRES_USER: ${username}
+      POSTGRES_PASSWORD: ${password}
+      POSTGRES_DB: ${dbname}
+      POSTGRES_HOST: db
+    ports:
+      - "8000:8000"
+    networks:
+      - my_network
+    depends_on:
+      - db
+
+networks:
+  my_network:
+    driver: bridge

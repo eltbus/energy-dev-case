@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Check if there are any changes in the working directory
+if ! git diff-index --quiet HEAD --; then
+  # If there are changes, stash any unstaged changes
+  git stash -q --keep-index
+
+  # Run tests on all changes
+  make test
+
+  # Pop the stash to restore unstaged changes
+  git stash pop -q
+else
+  # If there are no changes, run and `make test` directly
+  make test
+fi
+
+# If the tests fail, abort the commit
+if [ $? -ne 0 ]; then
+  echo "Tests failed. Aborting commit."
+  exit 1
+fi
