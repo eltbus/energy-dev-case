@@ -20,4 +20,4 @@ if [ -n "$unformatted" ]; then
 fi
 
 # If all files are formatted, restore the original state
-git stash pop -q
+git stash pop -q || exit 0
