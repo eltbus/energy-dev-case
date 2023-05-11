@@ -7,16 +7,17 @@ if git diff --cached --quiet; then
 fi
 
 # Check if there are any non-staged changes in the working directory
-if ! git diff --quiet; then
-  # Stash unstaged changes
+if git diff --quiet; then
+  make test
+  exit_code=$?
+  make coverage-report
+else
+  # Stash non-staged changes before testing, and pop after testing
   git stash -q --keep-index
   make test
   exit_code=$?
-  # Restore stashed unstaged changes
+  make coverage-report
   git stash pop -q
-else
-  make test
-  exit_code=$?
 fi
 
 # If the tests fail, abort the commit

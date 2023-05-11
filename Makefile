@@ -1,10 +1,13 @@
 format:
 	@poetry run python -Bm black src/
 
+format-check:
+	@poetry run python -Bm black -q --check src/
+
 test:
 	@PYTHONPATH=src poetry run python -Bm coverage run -m pytest src/tests
 
-coverate-report:
+coverage-report:
 	@PYTHONPATH=src poetry run python -Bm coverage report
 
 run:

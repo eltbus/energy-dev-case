@@ -1,23 +1,16 @@
 #!/bin/bash
 
-# Stash any changes in the working directory
-git stash -q --keep-index
-
-# Run `make format` on all Python files in the repository
-make format
-
-# Check if any Python files are unformatted
-unformatted=$(git ls-files --modified --others --exclude-standard | grep '\.py$' | xargs -r black --diff --check)
-
-# If any files are unformatted, print a warning and exit with an error status code
-if [ -n "$unformatted" ]; then
-  echo "The following files are not formatted:"
-  echo "$unformatted"
-  
-  # Restore the original state and exit with an error status code
+# Check if there are any changes in the working directory
+if [[ $(git status --porcelain) ]]; then
+  # Stash any changes before testing, and pop after testing
+  git stash -q
+  make format-check
+  exit_code=$?
   git stash pop -q
-  exit 1
+
+else
+  make format-check
+  exit_code=$?
 fi
 
-# If all files are formatted, restore the original state
-git stash pop -q || exit 0
+exit $exit_code
