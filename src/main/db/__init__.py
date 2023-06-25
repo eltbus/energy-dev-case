@@ -1,4 +1,5 @@
 # -*-coding:utf8-*-
+from contextlib import asynccontextmanager
 import os
 
 from sqlalchemy import create_engine
@@ -14,12 +15,13 @@ port = os.environ.get("POSTGRES_PORT", 5432)
 DB_URL = f"postgresql+psycopg2://{username}:{password}@{host}:{port}/{dbname}"
 engine = create_engine(DB_URL, future=True)
 
-
-def create_db_and_tables():
+@asynccontextmanager
+async def create_db_and_tables():
     """
     Initialize tables.
     """
     Base.metadata.create_all(engine)
+    yield
 
 
 def get_session():
