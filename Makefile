@@ -22,10 +22,13 @@ run:
 requirements:
 	@poetry export -o requirements.txt
 
+requirements-dev:
+	@poetry export --only dev -o requirements-dev.txt
+
 update-requirements:
 	@poetry update
 
-build: requirements
+build: requirements requirements-dev
 	@poetry run docker build -t myapi .
 
 deploy: build
