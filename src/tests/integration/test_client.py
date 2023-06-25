@@ -2,23 +2,15 @@ from tempfile import SpooledTemporaryFile
 from typing import List
 
 import pytest
-from fastapi import HTTPException
 from fastapi.testclient import TestClient
 
 from main.constraints import ParkName
-from main.routers.admin import handle_upsert
 
 
 def test_status_code_is_http_200_ok(client: TestClient, routes: List[str]):
     for route in routes:
         response = client.get(route)
         assert response.status_code == 200
-
-
-def test_handle_upsert_raises_exceptions():
-    with pytest.raises(HTTPException):
-        with handle_upsert():
-            raise Exception
 
 
 @pytest.fixture(scope="session")

@@ -1,50 +1,22 @@
 # -*-coding:utf8-*-
-from contextlib import contextmanager
 from csv import DictReader
 from datetime import date, datetime
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, UploadFile
+from fastapi import APIRouter, BackgroundTasks, Depends, Query, UploadFile
 from fastapi.responses import JSONResponse
 from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import Session
 from starlette.status import (
     HTTP_200_OK,
-    HTTP_400_BAD_REQUEST,
-    HTTP_404_NOT_FOUND,
-    HTTP_409_CONFLICT,
-    HTTP_500_INTERNAL_SERVER_ERROR,
 )
 
 from main.constraints import ParkName
 from main.db import get_session
 from main.db.models import EnergyReadingRow, MeasurementRow, ParkRow, StationRow
 from main.utils import gen_upload_file_as_string
+from main.routers.exceptions import handle_upsert
 
 router = APIRouter(prefix="/admin", tags=["ADMIN"])
-
-
-@contextmanager
-def handle_upsert():
-    """
-    A context manager for handling exceptions during the upsert operation.
-
-    Raises:
-        HTTPException: For various error scenarios:
-            - HTTP_400_BAD_REQUEST for an invalid row format.
-            - HTTP_409_CONFLICT for integrity errors during upsert.
-            - HTTP_500_INTERNAL_SERVER_ERROR for other exceptions.
-    """
-    try:
-        yield
-    except KeyError:
-        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Invalid row format. Upload aborted.")
-    except NoResultFound as e:
-        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=repr(e))
-    except IntegrityError as e:
-        raise HTTPException(status_code=HTTP_409_CONFLICT, detail=repr(e))
-    except Exception:
-        raise HTTPException(status_code=HTTP_500_INTERNAL_SERVER_ERROR, detail="There was an error uploading the file")
 
 
 @router.post("/parks/upload")
