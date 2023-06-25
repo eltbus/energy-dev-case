@@ -2,7 +2,18 @@
 
 # Stage 1: Base image
 FROM python:3.11-slim AS base
+ARG UID=10001
+ARG USER_NAME=appuser
+RUN adduser \
+    --disabled-password \
+    --gecos "" \
+    --home "/app" \
+    --shell "/sbin/nologin" \
+    --no-create-home \
+    --uid "${UID}" \
+    "${USER_NAME}"
 WORKDIR /app
+RUN chown ${USER_NAME}:${USER_NAME} /app
 RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=bind,source=requirements.txt,target=requirements.txt \
     python -m pip install -r requirements.txt
@@ -12,16 +23,14 @@ FROM base as unittest
 RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=bind,source=requirements-dev.txt,target=requirements-dev.txt \
     python -m pip install -r requirements-dev.txt
-COPY ./src/main/ ./main
+COPY --chown=${USER_NAME}:${USER_NAME} ./src/main/ ./main
 COPY ./src/tests/ ./tests
 RUN PYTHONPATH=/app pytest -s -vvv /app/tests/unit
 
 # Stage 3: Final stage
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-
 FROM base as final
+COPY --from=unittest /app/main ./main
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-COPY --from=unittest /app/main ./main
+USER ${USER_NAME}
 CMD ["python", "-m", "uvicorn", "main.entrypoint:api", "--host", "0.0.0.0"]
