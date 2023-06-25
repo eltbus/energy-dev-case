@@ -16,6 +16,9 @@ run:
 requirements:
 	@poetry export -o requirements.txt --without-hashes --without-urls
 
+update-requirements:
+	@poetry update
+
 build: requirements
 	@poetry run docker build . -t myapi
 
