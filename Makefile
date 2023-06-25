@@ -7,6 +7,12 @@ check-format:
 test:
 	@PYTHONPATH=src poetry run python -Bm coverage run -m pytest src/tests
 
+test-unit:
+	@PYTHONPATH=src poetry run python -Bm coverage run -m pytest src/tests/unit
+
+test-integration:
+	@PYTHONPATH=src poetry run python -Bm coverage run -m pytest src/tests/integration
+
 coverage-report:
 	@PYTHONPATH=src poetry run python -Bm coverage report
 
