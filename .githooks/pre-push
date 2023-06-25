@@ -4,12 +4,12 @@
 if [[ $(git status --porcelain) ]]; then
   # Stash any changes before testing, and pop after testing
   git stash -q
-  make check-format
+  make format-check
   exit_code=$?
   git stash pop -q
 
 else
-  make check-format
+  make format-check
   exit_code=$?
 fi
 

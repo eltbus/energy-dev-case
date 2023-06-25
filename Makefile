@@ -1,7 +1,7 @@
 format:
 	@poetry run python -Bm black src/
 
-check-format:
+format-check:
 	@poetry run python -Bm black -q --check src/
 
 test:
