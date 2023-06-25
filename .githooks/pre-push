@@ -1,16 +1,23 @@
 #!/bin/bash
 
-# Check if there are any changes in the working directory
-if [[ $(git status --untracked-files=no --porcelain) ]]; then
-  # Stash any changes before testing, and pop after testing
-  git stash -q
-  make format-check
-  exit_code=$?
-  git stash pop -q
+# Get the latest commit
+commit=$(git rev-parse HEAD)
 
-else
+# Check if there are any changes in the ./src directory in the latest commit
+if git diff-tree --no-commit-id --name-only -r $commit | grep "^src/"; then
+  # If there are changes, run format check
   make format-check
   exit_code=$?
+else
+  # If no changes, skip format check
+  echo "No changes in source files. Skipping format check."
+  exit 0
 fi
 
-exit $exit_code
+# If the format check fails, abort the push
+if [ $exit_code -ne 0 ]; then
+  echo "Format check failed. Aborting push."
+  exit $exit_code
+fi
+
+exit 0
