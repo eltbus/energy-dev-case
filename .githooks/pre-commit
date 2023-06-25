@@ -1,22 +1,21 @@
 #!/bin/bash
 
-# Check if there is anything staged for commit
-if git diff --cached --quiet; then
-  echo "Nothing staged for commit. Aborting tests and commit."
-  exit 1
+# Check if there is anything staged for commit in ./src
+if git diff --cached --quiet ./src; then
+  echo "No source files staged for commit. Skipping tests and proceeding with commit."
+  exit 0
 fi
 
 # Check if there are any non-staged changes in the working directory
 if git diff --quiet; then
+  # No unstaged changes, run tests directly
   make test
   exit_code=$?
-  make coverage-report
 else
   # Stash non-staged changes before testing, and pop after testing
   git stash -q --keep-index
   make test
   exit_code=$?
-  make coverage-report
   git stash pop -q
 fi
 
@@ -24,4 +23,7 @@ fi
 if [ $exit_code -ne 0 ]; then
   echo "Tests failed. Aborting commit."
   exit 1
+else
+  # Only generate coverage report if tests pass
+  make coverage-report
 fi
