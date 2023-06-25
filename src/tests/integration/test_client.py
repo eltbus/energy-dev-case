@@ -7,14 +7,10 @@ from fastapi.testclient import TestClient
 
 from main.constraints import ParkName
 from main.routers.admin import handle_upsert
-from tests.conftest import LOGGER
-
-# from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 
 
 def test_status_code_is_http_200_ok(client: TestClient, routes: List[str]):
     for route in routes:
-        LOGGER.debug(f"GET to endpoint '{route}'")
         response = client.get(route)
         assert response.status_code == 200
 

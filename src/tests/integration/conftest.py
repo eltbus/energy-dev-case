@@ -18,11 +18,6 @@ from main.db.models import Base, EnergyReadingRow, MeasurementRow, ParkRow, Stat
 api = start_api()
 client = TestClient(api)
 
-from logging import getLogger
-
-LOGGER = getLogger(__name__)
-
-
 @pytest.fixture(scope="session")
 def park_data() -> List[ParkRow]:
     """
