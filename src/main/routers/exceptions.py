@@ -9,6 +9,7 @@ from starlette.status import (
     HTTP_500_INTERNAL_SERVER_ERROR,
 )
 
+
 @contextmanager
 def handle_upsert():
     """
