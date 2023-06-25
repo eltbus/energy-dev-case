@@ -15,6 +15,7 @@ port = os.environ.get("POSTGRES_PORT", 5432)
 DB_URL = f"postgresql+psycopg2://{username}:{password}@{host}:{port}/{dbname}"
 engine = create_engine(DB_URL, future=True)
 
+
 @asynccontextmanager
 async def create_db_and_tables():
     """

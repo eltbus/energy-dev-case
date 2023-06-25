@@ -9,6 +9,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 from main.db import create_db_and_tables
 from main.middleware import FilterEmptyQueryParamsMiddleware
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with create_db_and_tables():
