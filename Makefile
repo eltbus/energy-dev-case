@@ -26,7 +26,7 @@ update-requirements:
 	@poetry update
 
 build: requirements
-	@poetry run docker build . -t myapi
+	@poetry run docker build -t myapi .
 
 deploy: build
 	@terraform apply -auto-approve -compact-warnings > /dev/null 2>&1
