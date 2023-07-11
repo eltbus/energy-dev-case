@@ -26,12 +26,23 @@ services:
       POSTGRES_PASSWORD: ${password}
       POSTGRES_DB: ${dbname}
       POSTGRES_HOST: db
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     networks:
       - my_network
     depends_on:
       - db
+
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "80:80"
+    networks:
+      - my_network
+    depends_on:
+      - api
 
 networks:
   my_network:
