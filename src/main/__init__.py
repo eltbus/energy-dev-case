@@ -5,6 +5,7 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware import Middleware
 from fastapi.middleware.gzip import GZipMiddleware
+from starlette_exporter import PrometheusMiddleware, handle_metrics
 
 from main.db import create_db_and_tables
 from main.middleware import FilterEmptyQueryParamsMiddleware
@@ -23,8 +24,9 @@ def start_api() -> FastAPI:
         lifespan=lifespan,
         middleware=[
             Middleware(GZipMiddleware),
-            Middleware(FilterEmptyQueryParamsMiddleware),
-        ],  # NOTE: see https://github.com/tiangolo/fastapi/issues/1147
+            Middleware(FilterEmptyQueryParamsMiddleware),  # NOTE: see https://github.com/tiangolo/fastapi/issues/1147
+            Middleware(PrometheusMiddleware),
+        ],
     )
 
     from main.routers.core import router as core
@@ -34,4 +36,7 @@ def start_api() -> FastAPI:
     from main.routers.admin import router as admin
 
     api.include_router(admin)
+
+    api.add_route("/metrics", handle_metrics)
+
     return api

@@ -1,14 +1,14 @@
 version: "3.8"
 
 services:
-  db:
+  postgres:
     image: postgres:latest
     environment:
-      POSTGRES_USER: ${username}
-      POSTGRES_PASSWORD: ${password}
-      POSTGRES_DB: ${dbname}
+      POSTGRES_USER: ${postgres_username}
+      POSTGRES_PASSWORD: ${postgres_password}
+      POSTGRES_DB: ${postgres_dbname}
     healthcheck:
-      test: ["CMD", "pg_isready", "-d", "${dbname}", "-U", "${username}"]
+      test: ["CMD", "pg_isready", "-d", "${postgres_username}", "-U", "${postgres_username}"]
       timeout: 30s
       interval: 10s
       retries: 3
@@ -17,21 +17,21 @@ services:
     expose:
       - "5432"
     volumes:
-      - ./data/db:/var/lib/postgresql/data
+      - ./data/postgres:/var/lib/postgresql/data
 
   api:
     image: myapi
     environment:
-      POSTGRES_USER: ${username}
-      POSTGRES_PASSWORD: ${password}
-      POSTGRES_DB: ${dbname}
-      POSTGRES_HOST: db
+      POSTGRES_USER: ${postgres_username}
+      POSTGRES_PASSWORD: ${postgres_password}
+      POSTGRES_DB: ${postgres_dbname}
+      POSTGRES_HOST: postgres
     expose:
       - "8000"
     networks:
       - my_network
     depends_on:
-      - db
+      - postgres
 
   nginx:
     image: nginx:latest
@@ -43,6 +43,32 @@ services:
       - my_network
     depends_on:
       - api
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./data/prometheus:/prometheus
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    depends_on:
+      - api
+    networks:
+      - my_network
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    networks:
+      - my_network
+    environment:
+      GF_SECURITY_ADMIN_USER: ${grafana_username}
+      GF_SECURITY_ADMIN_PASSWORD: ${grafana_password}
+    volumes:
+      - ./data/grafana:/var/lib/grafana
+    depends_on:
+      - prometheus
 
 networks:
   my_network:

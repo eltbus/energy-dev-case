@@ -16,9 +16,6 @@ test-integration:
 coverage-report:
 	@PYTHONPATH=src poetry run python -Bm coverage report
 
-run:
-	@PYTHONPATH=src poetry run python -Bm uvicorn src.main.entrypoint:api --port 8000 --reload
-
 requirements:
 	@poetry export -o requirements.txt
 
