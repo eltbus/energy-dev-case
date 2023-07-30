@@ -19,13 +19,13 @@ coverage-report:
 requirements:
 	@poetry export -o requirements.txt
 
-requirements-dev:
-	@poetry export --only dev -o requirements-dev.txt
+requirements-test:
+	@poetry export --only test -o requirements-test.txt
 
 update-requirements:
 	@poetry update
 
-build: requirements requirements-dev
+build: requirements requirements-test
 	@poetry run docker build -t myapi .
 
 deploy: build

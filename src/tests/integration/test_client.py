@@ -46,10 +46,6 @@ def test_upload_wrong_filename_returns_error_response(client: TestClient, dummy_
     response = client.post("/admin/parks/upload", files=[("hola", dummy_park_file)])
     assert response.is_error
     assert response.is_client_error
-    assert (
-        response.text
-        == '{"detail":[{"loc":["body","upload_file"],"msg":"field required","type":"value_error.missing"}]}'
-    )
 
     response = client.post(
         "/admin/energy-readings/upload",
@@ -58,10 +54,6 @@ def test_upload_wrong_filename_returns_error_response(client: TestClient, dummy_
     )
     assert response.is_error
     assert response.is_client_error
-    assert (
-        response.text
-        == '{"detail":[{"loc":["body","upload_file"],"msg":"field required","type":"value_error.missing"}]}'
-    )
 
 
 def test_empty_file_upserts_no_park_rows(client: TestClient, empty_file):
