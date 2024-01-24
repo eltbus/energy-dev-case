@@ -1,10 +1,5 @@
-[tool.black]
+[tool.ruff]
 line-length = 120
-use_isort = true
-
-[tool.isort]
-line_length = 120
-combine_as_imports = true
 
 [tool.pytest.ini_options]
 log_cli = true
@@ -18,7 +13,7 @@ authors = ["Guillermo Enrique Sánchez de Abreu <naselliug@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.8"
 sqlalchemy = "^2.0.20"
 fastapi = "0.101.0"
 pydantic = "^2.3.0"
@@ -30,8 +25,7 @@ python-multipart = "^0.0.6"
 starlette-exporter = "^0.16.0"
 
 [tool.poetry.group.dev.dependencies]
-black = "^22.12.0"
-isort = "^5.11.4"
+ruff = "^0.1.14"
 
 [tool.poetry.group.test.dependencies]
 pytest-mock = "^3.10.0"
@@ -43,3 +37,18 @@ coverage = "^7.1.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.tox]
+legacy_tox_ini = """
+    [tox]
+    env_list =
+        py312
+        py311
+        py310
+        py39
+        py38
+
+    [testenv]
+    skip_install = true
+    allowlist_externals = poetry
+"""

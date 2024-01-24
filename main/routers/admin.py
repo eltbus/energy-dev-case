@@ -25,7 +25,7 @@ async def insert_parks_from_file(
     background_tasks: BackgroundTasks,
     session: Session = Depends(get_session),
     upload_file: UploadFile,
-):
+) -> JSONResponse:
     """
     Insert parks into the database from an uploaded CSV file.
 
@@ -171,7 +171,7 @@ async def insert_measurements_from_file(
     station_code: str = Query(..., description="Station to associate this measurements to."),
     session: Session = Depends(get_session),
     upload_file: UploadFile,
-):
+) -> JSONResponse:
     """
     Insert measurements for a given station into the database from an uploaded CSV file.
 

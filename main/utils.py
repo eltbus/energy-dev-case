@@ -1,10 +1,10 @@
 # -*-coding:utf8-*-
-from typing import BinaryIO, Dict, Iterator, Union
+from typing import BinaryIO, Dict, Iterator
 
-from main.db.models import EnergyReadingRow, ParkRow
+from main.db.queries import ParkEnergyReadingsRow
 
 
-def pack(d: Dict, i: Union[ParkRow, EnergyReadingRow]):
+def pack(d: Dict, i: ParkEnergyReadingsRow) -> Dict:
     """
     Group by util for ParkRow and EnergyReadings to reduce response size.
     """

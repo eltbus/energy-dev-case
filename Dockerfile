@@ -23,8 +23,8 @@ FROM base as unittest
 RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=bind,source=requirements-test.txt,target=requirements-test.txt \
     python -m pip install -r requirements-test.txt
-COPY --chown=${USER_NAME}:${USER_NAME} ./src/main/ ./main
-COPY ./src/tests/ ./tests
+COPY --chown=${USER_NAME}:${USER_NAME} ./main/ ./main
+COPY ./tests/ ./tests
 RUN PYTHONPATH=/app pytest -s -vvv /app/tests/unit
 
 # Stage 3: Final stage

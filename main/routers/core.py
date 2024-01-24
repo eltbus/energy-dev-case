@@ -1,10 +1,11 @@
 from datetime import date
 from functools import reduce
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Sequence
 
 from fastapi import APIRouter, Depends, Query
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
+from sqlalchemy.engine.row import RowMapping
 
 from main.constraints import EnergyType, ParkName, Timezone
 from main.db import get_session
@@ -22,7 +23,7 @@ router = APIRouter()
 
 @router.head("/")
 @router.get("/")
-def redirect_to_docs():
+def redirect_to_docs() -> RedirectResponse:
     """
     Redirect to low effort frontend -> OpenAPI
     """
@@ -36,7 +37,7 @@ def read_parks(
     timezones: List[Timezone] = Query(default=[]),
     offset: int = 0,
     limit: int = Query(default=100, lte=100),
-):
+) -> Sequence[RowMapping]:
     """
     Get parks in database
     """
@@ -53,7 +54,7 @@ def read_parks_with_energy_readings(
     end_date: Optional[date] = Query(default=None),
     offset: int = 0,
     limit: int = Query(default=100, lte=100),
-):
+) -> Sequence[RowMapping]:
     """
     Get park energy production readings.
     """
@@ -67,7 +68,7 @@ def read_parks_with_energy_readings(
         start_date=start_date,
         end_date=end_date,
     )
-    packed_rows: Dict = reduce(pack, rows, {})  # type:ignore
+    packed_rows: Dict = reduce(pack, rows, {})
     return [packed_rows[key] for key in packed_rows]
 
 
@@ -81,7 +82,7 @@ def read_park_stats(
     end_date: Optional[date] = Query(default=None),
     offset: int = 0,
     limit: int = Query(default=100, lte=100),
-):
+) -> Sequence[RowMapping]:
     """
     Get park stats
     """
@@ -107,7 +108,7 @@ def read_energy_type_stats(
     end_date: Optional[date] = Query(default=None),
     offset: int = 0,
     limit: int = Query(default=100, lte=100),
-):
+) -> Sequence[RowMapping]:
     """
     Get energy_type stats
     """

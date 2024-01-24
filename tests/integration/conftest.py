@@ -1,6 +1,6 @@
 import os
 from datetime import date, datetime
-from typing import List
+from typing import List, Iterator
 
 import pytest
 from fastapi import FastAPI
@@ -14,9 +14,6 @@ from main import start_api
 from main.constraints import EnergyType, ParkName, Timezone
 from main.db import get_session
 from main.db.models import Base, EnergyReadingRow, MeasurementRow, ParkRow, StationRow
-
-api = start_api()
-client = TestClient(api)
 
 
 @pytest.fixture(scope="session")
@@ -71,7 +68,7 @@ def stations_data() -> List[StationRow]:
 
 
 @pytest.fixture(scope="session")  # Re-use scope to speed up tests
-def session(park_data: List[ParkRow], stations_data: List[StationRow]):
+def session(park_data: List[ParkRow], stations_data: List[StationRow]) -> Iterator[Session]:
     """
     Start containerized database -> engine -> add dummy data -> and yield session
     """
@@ -94,20 +91,20 @@ def session(park_data: List[ParkRow], stations_data: List[StationRow]):
             yield session
 
 
-@pytest.fixture(name="api")
-def api_fixture() -> FastAPI:
+@pytest.fixture
+def api() -> FastAPI:
     return start_api()
 
 
-@pytest.fixture(name="routes")
-def routes_fixture() -> List[str]:
+@pytest.fixture
+def routes() -> List[str]:
     from main.routers.core import router as core_router
 
     return [route.path for route in core_router.routes if isinstance(route, Route)]
 
 
-@pytest.fixture(name="client")
-def client_fixture(session: Session, api):
+@pytest.fixture
+def client(session: Session, api: FastAPI) -> Iterator[TestClient]:
     api.dependency_overrides[get_session] = lambda: session
     client = TestClient(api)
     yield client

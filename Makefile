@@ -1,20 +1,23 @@
 format:
-	@poetry run python -Bm black src/
+	@poetry run python -Bm ruff main tests
 
 format-check:
-	@poetry run python -Bm black -q --check src/
+	@poetry run python -Bm ruff check -q main tests
 
 test:
-	@PYTHONPATH=src poetry run python -Bm coverage run -m pytest src/tests
+	@poetry run python -Bm coverage run -m pytest -rA tests
 
 test-unit:
-	@PYTHONPATH=src poetry run python -Bm coverage run -m pytest src/tests/unit
+	@poetry run python -Bm coverage run -m pytest -rA tests/unit
 
 test-integration:
-	@PYTHONPATH=src poetry run python -Bm coverage run -m pytest src/tests/integration
+	@poetry run python -Bm coverage run -m pytest -rA tests/integration
+
+test-env:
+	@tox -p
 
 coverage-report:
-	@PYTHONPATH=src poetry run python -Bm coverage report
+	@poetry run python -Bm coverage report --show-missing
 
 requirements:
 	@poetry export -o requirements.txt

@@ -1,5 +1,5 @@
-from datetime import date
-from typing import List, Optional, Sequence
+from datetime import date, datetime
+from typing import List, NamedTuple, Optional, Sequence
 
 from sqlalchemy import func as F
 from sqlalchemy import select
@@ -12,6 +12,14 @@ from main.constraints import EnergyType, ParkName, Timezone
 from main.db.models import EnergyReadingRow, ParkRow
 
 
+class ParkEnergyReadingsRow(NamedTuple):
+    name: str
+    timezone: str
+    energy_type: str
+    megawatts: float
+    timestamp: datetime
+
+
 def add_park_and_energy_readings_where_condition(
     stmt: Select,
     park_names: List[ParkName] = [],
@@ -19,7 +27,7 @@ def add_park_and_energy_readings_where_condition(
     energy_types: List[EnergyType] = [],
     start_date: Optional[date] = None,
     end_date: Optional[date] = None,
-):
+) -> Select:
     """
     Compound select statatement with where conditions
     """
@@ -58,7 +66,7 @@ def select_parks_with_energy_readings(
     energy_types: List[EnergyType] = [],
     start_date: Optional[date] = None,
     end_date: Optional[date] = None,
-) -> Sequence[RowMapping]:
+) -> Sequence[ParkEnergyReadingsRow]:
     stmt = (
         select(
             ParkRow.name, ParkRow.timezone, ParkRow.energy_type, EnergyReadingRow.megawatts, EnergyReadingRow.timestamp
@@ -75,7 +83,8 @@ def select_parks_with_energy_readings(
         start_date=start_date,
         end_date=end_date,
     )
-    return session.execute(stmt).mappings().all()
+    results = session.execute(stmt).mappings().all()
+    return [ParkEnergyReadingsRow(**row) for row in results]
 
 
 def select_stats_by_park_and_date(
