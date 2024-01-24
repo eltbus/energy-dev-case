@@ -33,4 +33,4 @@ jobs:
       run: sudo service docker start
 
     - name: Run tests
-      run: poetry run pytest
+      run: poetry run python -m pytest tests
