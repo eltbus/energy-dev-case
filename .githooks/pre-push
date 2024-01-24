@@ -4,7 +4,8 @@
 commit=$(git rev-parse HEAD)
 
 # Check if there are any changes in the ./src directory in the latest commit
-if git diff-tree --no-commit-id --name-only -r $commit | grep "^src/"; then
+# grep -E "^(main|tests)/"
+if git diff-tree --no-commit-id --name-only -r $commit | grep -E "^(main|tests)/"; then
   # If there are changes, run format check
   make format-check
   exit_code=$?
