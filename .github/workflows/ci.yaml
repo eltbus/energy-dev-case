@@ -23,11 +23,14 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
+    - name: Install Poetry
+      run: curl -sSL curl -sSL https://install.python-poetry.org | python3 -
+
     - name: Install dependencies
-      run: pip install -r requirements-test.txt
+      run: poetry install --no-interaction --no-ansi
 
     - name: Start Docker service
       run: sudo service docker start
 
     - name: Run tests
-      run: pytest
+      run: poetry run pytest
