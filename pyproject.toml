@@ -13,16 +13,16 @@ authors = ["Guillermo Enrique Sánchez de Abreu <naselliug@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.8"
-sqlalchemy = "^2.0.20"
-fastapi = "0.101.0"
+python = "^3.12"
+sqlalchemy = "^2.0.27"
+fastapi = "^0.109.2"
 pydantic = "^2.3.0"
 psycopg2-binary = "^2.9.5"
-uvicorn = "^0.23.2"
+uvicorn = "^0.27.1"
 pyyaml = "^6.0"
 aiofiles = "^23.2.1"
-python-multipart = "^0.0.6"
-starlette-exporter = "^0.16.0"
+python-multipart = "^0.0.9"
+starlette-exporter = "^0.21.0"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.1.14"
