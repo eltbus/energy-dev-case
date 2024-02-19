@@ -21,7 +21,7 @@ psycopg2-binary = "^2.9.5"
 uvicorn = "^0.23.2"
 pyyaml = "^6.0"
 aiofiles = "^23.2.1"
-python-multipart = "^0.0.6"
+python-multipart = "^0.0.7"
 starlette-exporter = "^0.16.0"
 
 [tool.poetry.group.dev.dependencies]
